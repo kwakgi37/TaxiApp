@@ -1,3 +1,5 @@
+/* eslint-disable react/no-unstable-nested-components */
+/* eslint-disable react/react-in-jsx-scope */
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
 
 import Icon from 'react-native-vector-icons/FontAwesome';
@@ -46,16 +48,5 @@ function Main(): JSX.Element {
     </BottomTab.Navigator>
   );
 }
-
-// const styles = StyleSheet.create({
-//   textBlack: {
-//     fontSize: 18,
-//     color: 'black',
-//   },
-//   textBlue: {
-//     fontSize: 18,
-//     color: 'blue',
-//   },
-// });
 
 export default Main;

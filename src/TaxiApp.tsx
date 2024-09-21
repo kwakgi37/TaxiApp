@@ -1,3 +1,4 @@
+/* eslint-disable react/react-in-jsx-scope */
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
 

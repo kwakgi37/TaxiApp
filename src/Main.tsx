@@ -1,17 +1,13 @@
 /* eslint-disable react/no-unstable-nested-components */
 /* eslint-disable react/react-in-jsx-scope */
 import {createBottomTabNavigator} from '@react-navigation/bottom-tabs';
-
 import Icon from 'react-native-vector-icons/FontAwesome';
 import Main_Map from './Main_Map';
 import Main_List from './Main_List';
 import Main_Setting from './Main_Setting';
-
 function Main(): JSX.Element {
   console.log('-- Main()');
-
   const BottomTab = createBottomTabNavigator();
-
   return (
     <BottomTab.Navigator>
       <BottomTab.Screen

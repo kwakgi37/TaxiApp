@@ -1,16 +1,13 @@
 /* eslint-disable react/react-in-jsx-scope */
 import {NavigationContainer} from '@react-navigation/native';
 import {createStackNavigator} from '@react-navigation/stack';
-
 import Intro from './Intro.tsx';
 import Main from './Main.tsx';
 import Login from './Login.tsx';
 import Register from './Register.tsx';
 import NickNameScreen from './Main_Setting_NickName.tsx';
-
 function TaxiApp(): JSX.Element {
   console.log('-- TaxiApp()');
-
   const Stack = createStackNavigator();
   return (
     <NavigationContainer>
@@ -44,5 +41,4 @@ function TaxiApp(): JSX.Element {
     </NavigationContainer>
   );
 }
-
 export default TaxiApp;

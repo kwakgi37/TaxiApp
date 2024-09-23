@@ -10,23 +10,18 @@ import {
 import AsyncStorage from '@react-native-async-storage/async-storage';
 import {ParamListBase, useNavigation} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
-
 function Main_Setting(): JSX.Element {
   console.log('-- Main_Setting()');
-
   const navigation = useNavigation<StackNavigationProp<ParamListBase>>();
-
   const onLogout = () => {
     AsyncStorage.removeItem('userId').then(() => {
       navigation.popToTop();
     });
   };
-
   let arrSetMenu = [
     {id: 0, name: '로그아웃'},
     {id: 1, name: '닉네임 설정'},
   ];
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -57,7 +52,6 @@ function Main_Setting(): JSX.Element {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -75,5 +69,4 @@ const styles = StyleSheet.create({
     marginBottom: 2,
   },
 });
-
 export default Main_Setting;

@@ -1,6 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
 /* eslint-disable react/no-unstable-nested-components */
-import React, {useState, useEffect} from 'react';
 import {
   SafeAreaView,
   StyleSheet,
@@ -9,58 +8,53 @@ import {
   FlatList,
   RefreshControl,
   Modal,
+  Alert,
 } from 'react-native';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
+import {useState} from 'react';
+import {useFocusEffect} from '@react-navigation/native';
+import React from 'react';
 import Icon from 'react-native-vector-icons/FontAwesome';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage 추가
-import {useNavigation} from '@react-navigation/native'; // Navigation 추가
-
+import AsyncStorage from '@react-native-async-storage/async-storage';
+import api from './API.tsx';
 function Main_List(): JSX.Element {
-  const [callList, setCallList] = useState([]); // 호출 리스트 상태
-  const [loading, setLoading] = useState(false); // 로딩 상태
-  const navigation = useNavigation();
-
-  useEffect(() => {
-    const loadCallList = async () => {
-      try {
-        const storedCallList = await AsyncStorage.getItem('callList');
-        if (storedCallList) {
-          setCallList(JSON.parse(storedCallList));
-        }
-      } catch (error) {
-        console.error(error);
-      }
-    };
-
-    // 화면이 포커스 될 때마다 AsyncStorage에서 데이터를 불러옴
-    const unsubscribe = navigation.addListener('focus', loadCallList);
-
-    return unsubscribe;
-  }, [navigation]);
-
-  // 상태를 주기적으로 변경 (REQ <-> RES)
-  useEffect(() => {
-    const intervalId = setInterval(() => {
-      setCallList(prevList =>
-        prevList.map(item =>
-          item.call_state === 'REQ' ? {...item, call_state: 'RES'} : item,
-        ),
-      );
-    }, 1000); // 1초마다 상태 변경
-
-    return () => clearInterval(intervalId); // 컴포넌트 언마운트 시 인터벌 제거
-  }, []);
-
-  const requestCallList = () => {
+  console.log('-- Main_List()');
+  const [callList, setCallList] = useState([]);
+  const [loading, setLoading] = useState(false);
+  useFocusEffect(
+    React.useCallback(() => {
+      requestCallList();
+    }, []),
+  );
+  const requestCallList = async () => {
     setLoading(true);
-    setTimeout(() => {
-      setLoading(false); // 로딩 상태 해제
-    }, 1000); // 1초 후 로딩 상태 해제
-  };
+    let userId = (await AsyncStorage.getItem('userId')) || '';
 
+    api
+      .list(userId)
+      .then(response => {
+        let {code, message, data} = response.data[0];
+        if (code == 0) {
+          setCallList(data);
+        } else {
+          Alert.alert('오류', message, [
+            {
+              text: '확인',
+              onPress: () => console.log('cancel pressed'),
+              style: 'cancel',
+            },
+          ]);
+        }
+        setLoading(false);
+      })
+      .catch(err => {
+        console.log(JSON.stringify(err));
+        setLoading(false);
+      });
+  };
   const Header = () => {
     return (
       <View style={styles.header}>
@@ -71,14 +65,14 @@ function Main_List(): JSX.Element {
       </View>
     );
   };
-
-  const ListItem = ({item}: {item: any}) => {
+  const ListItem = (row: any) => {
+    console.log('row = ' + JSON.stringify(row));
     return (
       <View style={{flexDirection: 'row', marginBottom: 5, width: wp(100)}}>
         <View style={{width: wp(80)}}>
-          <Text style={styles.textForm}>{item.start_addr}</Text>
+          <Text style={styles.textForm}>{row.item.start_addr}</Text>
           <Text style={[styles.textForm, {borderTopWidth: 0}]}>
-            {item.end_addr}
+            {row.item.end_addr}
           </Text>
         </View>
         <View
@@ -87,12 +81,11 @@ function Main_List(): JSX.Element {
             alignItems: 'center',
             justifyContent: 'center',
           }}>
-          <Text>{item.call_state}</Text>
+          <Text>{row.item.call_state}</Text>
         </View>
       </View>
     );
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <FlatList
@@ -100,22 +93,20 @@ function Main_List(): JSX.Element {
         data={callList}
         ListHeaderComponent={Header}
         renderItem={ListItem}
-        keyExtractor={(item: any) => item.id.toString()} // key를 id로 설정
+        keyExtractor={(item: any) => item.id}
         refreshControl={
           <RefreshControl refreshing={loading} onRefresh={requestCallList} />
         }
       />
-
       <Modal transparent={true} visible={loading}>
         <View style={{flex: 1, justifyContent: 'center', alignItems: 'center'}}>
           <Icon name="spinner" size={50} color={'#3498db'} />
-          <Text style={{color: 'black'}}>Loading...</Text>
+          <Text style={{color: 'black'}}>Loding...</Text>
         </View>
       </Modal>
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -146,5 +137,4 @@ const styles = StyleSheet.create({
     paddingRight: 10,
   },
 });
-
 export default Main_List;

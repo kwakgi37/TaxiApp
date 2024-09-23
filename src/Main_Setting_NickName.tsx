@@ -10,11 +10,9 @@ import {
   View,
 } from 'react-native';
 import AsyncStorage from '@react-native-async-storage/async-storage';
-
 const NickNameScreen = () => {
   const [nickname, setNickname] = useState('');
   const [inputNickname, setInputNickname] = useState('');
-
   useEffect(() => {
     const loadNickname = async () => {
       try {
@@ -28,13 +26,11 @@ const NickNameScreen = () => {
     };
     loadNickname();
   });
-
   const saveNickname = async () => {
     if (inputNickname === '') {
       Alert.alert('오류', '닉네임을 입력하세요');
       return;
     }
-
     try {
       await AsyncStorage.setItem('nickname', inputNickname);
       setNickname(inputNickname);
@@ -44,7 +40,6 @@ const NickNameScreen = () => {
       Alert.alert('오류', '닉네임 저장을 실패했습니다.');
     }
   };
-
   return (
     <SafeAreaView style={styles.container}>
       <View style={styles.container}>
@@ -66,7 +61,6 @@ const NickNameScreen = () => {
     </SafeAreaView>
   );
 };
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -104,5 +98,4 @@ const styles = StyleSheet.create({
     padding: 10,
   },
 });
-
 export default NickNameScreen;

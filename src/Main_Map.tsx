@@ -1,5 +1,5 @@
 /* eslint-disable react-native/no-inline-styles */
-import React, {useState} from 'react';
+/* eslint-disable react/react-in-jsx-scope */
 import {
   SafeAreaView,
   StyleSheet,
@@ -7,70 +7,22 @@ import {
   TouchableOpacity,
   View,
   TextInput,
-  ActivityIndicator,
 } from 'react-native';
 import Icon from 'react-native-vector-icons/FontAwesome';
 import {
   widthPercentageToDP as wp,
   heightPercentageToDP as hp,
 } from 'react-native-responsive-screen';
-import AsyncStorage from '@react-native-async-storage/async-storage'; // AsyncStorage 추가
-import dummyData from './dummyData.json'; // 더미 데이터를 불러옴
-import {useNavigation} from '@react-navigation/native';
-
+import {useState} from 'react';
 function Main_Map(): JSX.Element {
+  console.log('-- Main_Map()');
   const [showBtn, setShowBtn] = useState(false);
-  const [departure, setDeparture] = useState('');
-  const [destination, setDestination] = useState('');
-  const [loading, setLoading] = useState(false); // 로딩 상태
-  const navigation = useNavigation(); // Navigation 객체
-
   const handleLongPress = async (_event: any) => {
     setShowBtn(true);
   };
-
   const handleAddMarker = (_title: string) => {
     setShowBtn(false);
   };
-
-  const saveToAsyncStorage = async (selectedDeparture, selectedDestination) => {
-    try {
-      const existingData = await AsyncStorage.getItem('callList');
-      const callList = existingData ? JSON.parse(existingData) : [];
-      const newEntry = {
-        id: callList.length + 1,
-        start_addr: selectedDeparture,
-        end_addr: selectedDestination,
-        call_state: 'REQ',
-      };
-      await AsyncStorage.setItem(
-        'callList',
-        JSON.stringify([...callList, newEntry]),
-      );
-    } catch (error) {
-      console.error(error);
-    }
-  };
-
-  const selectRandomLocations = () => {
-    setLoading(true); // 로딩 시작
-    const shuffledLocations = [...dummyData.locations].sort(
-      () => 0.5 - Math.random(),
-    );
-    const selectedDeparture = shuffledLocations[0];
-    const selectedDestination = shuffledLocations[1];
-    setDeparture(selectedDeparture);
-    setDestination(selectedDestination);
-
-    // AsyncStorage에 출발지/도착지 저장
-    saveToAsyncStorage(selectedDeparture, selectedDestination);
-
-    // 1초 후에 로딩 종료
-    setTimeout(() => {
-      setLoading(false); // 로딩 종료
-    }, 1000); // 1초 지연
-  };
-
   return (
     <SafeAreaView style={styles.container}>
       {/** 지도 */}
@@ -79,7 +31,9 @@ function Main_Map(): JSX.Element {
           name="building"
           size={300}
           color={'#34db98'}
-          onPress={() => setShowBtn(false)}
+          onPress={() => {
+            setShowBtn(false);
+          }}
           onLongPress={handleLongPress}
         />
       </View>
@@ -92,41 +46,19 @@ function Main_Map(): JSX.Element {
         }}>
         <View style={{flexDirection: 'row'}}>
           <View style={{flex: 1}}>
-            <TextInput
-              style={styles.input}
-              placeholder={'출발지'}
-              value={departure}
-              editable={false}
-            />
-            <TextInput
-              style={styles.input}
-              placeholder={'도착지'}
-              value={destination}
-              editable={false}
-            />
+            <TextInput style={styles.input} placeholder={'출발지'} />
+            <TextInput style={styles.input} placeholder={'도착지'} />
           </View>
           <TouchableOpacity
-            style={[styles.button, {margin: 10, justifyContent: 'center'}]}
-            onPress={selectRandomLocations}
-            disabled={loading}>
+            style={[styles.button, {margin: 10, justifyContent: 'center'}]}>
             <Text style={styles.buttonText}>호출</Text>
           </TouchableOpacity>
         </View>
       </View>
-
-      {/** 로딩 스피너 */}
-      {loading && (
-        <View style={styles.loadingOverlay}>
-          <ActivityIndicator size="large" color="#3498db" />
-          <Text style={styles.loadingText}>호출 중...</Text>
-        </View>
-      )}
-
       {/** 내 위치 */}
-      <TouchableOpacity style={{position: 'absolute', bottom: 20, right: 20}}>
+      <TouchableOpacity style={[{position: 'absolute', bottom: 20, right: 20}]}>
         <Icon name="crosshairs" size={40} color={'#3498db'} />
       </TouchableOpacity>
-
       {showBtn && (
         <View
           style={{
@@ -151,7 +83,6 @@ function Main_Map(): JSX.Element {
     </SafeAreaView>
   );
 }
-
 const styles = StyleSheet.create({
   container: {
     flex: 1,
@@ -161,6 +92,12 @@ const styles = StyleSheet.create({
   },
   button: {
     backgroundColor: '#3498db',
+    paddingVertical: 10,
+    paddingHorizontal: 20,
+    borderRadius: 5,
+  },
+  buttonDisable: {
+    backgroundColor: 'gray',
     paddingVertical: 10,
     paddingHorizontal: 20,
     borderRadius: 5,
@@ -177,21 +114,5 @@ const styles = StyleSheet.create({
     marginVertical: 1,
     padding: 10,
   },
-  loadingOverlay: {
-    position: 'absolute',
-    top: 0,
-    left: 0,
-    right: 0,
-    bottom: 0,
-    justifyContent: 'center',
-    alignItems: 'center',
-    backgroundColor: 'rgba(0, 0, 0, 0.3)',
-  },
-  loadingText: {
-    marginTop: 10,
-    fontSize: 18,
-    color: 'white',
-  },
 });
-
 export default Main_Map;

@@ -14,6 +14,7 @@ import {useState} from 'react';
 import {useNavigation, ParamListBase} from '@react-navigation/native';
 import {StackNavigationProp} from '@react-navigation/stack';
 import api from './API.tsx';
+import AsyncStorage from '@react-native-async-storage/async-storage';
 
 function Regjster(): JSX.Element {
   console.log('-- Regjster()');
@@ -24,13 +25,14 @@ function Regjster(): JSX.Element {
   const [userPw, setUserPw] = useState('');
   const [userPw2, setUserPw2] = useState('');
 
-  const onRegister = () => {
+  const onRegister = async () => {
+    let fcmToken = (await AsyncStorage.getItem('fcmToken')) || '';
     api
-      .register(userId, userPw)
+      .register(userId, userPw, `${fcmToken}`)
       .then(response => {
         let {code, message} = response.data[0];
         let title = '알림';
-        if (code == 0) {
+        if (code === 0) {
           navigation.pop();
         } else {
           title = '오류';

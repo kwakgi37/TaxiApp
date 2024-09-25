@@ -19,7 +19,7 @@ function Intro(): JSX.Element {
           navigation.push('Login');
         }
       }, 2000);
-    }, []),
+    }, [navigation]),
   );
   return (
     <SafeAreaView style={styles.container}>
